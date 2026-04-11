@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Licenciatura, Docente, UnidadeCurricular
+from .models import Licenciatura, Docente, UnidadeCurricular, Competencia
 
 
 @admin.register(Licenciatura)
@@ -22,3 +22,10 @@ class UnidadeCurricularAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'codigo')
     list_filter = ('ano', 'semestre', 'licenciaturas')
     filter_horizontal = ('licenciaturas', 'docentes')
+
+
+@admin.register(Competencia)
+class CompetenciaAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'tipo', 'nivel')
+    search_fields = ('nome',)
+    list_filter = ('tipo', 'nivel')

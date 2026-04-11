@@ -54,3 +54,25 @@ class UnidadeCurricular(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nome}"
+
+
+class Competencia(models.Model):
+    TIPO_CHOICES = [
+        ('TEC', 'Técnica'),
+        ('SOFT', 'Soft Skill'),
+        ('LING', 'Linguística'),
+    ]
+
+    NIVEL_CHOICES = [
+        ('BAS', 'Básico'),
+        ('INT', 'Intermédio'),
+        ('AVA', 'Avançado'),
+    ]
+
+    nome = models.CharField(max_length=200)
+    tipo = models.CharField(max_length=5, choices=TIPO_CHOICES)
+    nivel = models.CharField(max_length=5, choices=NIVEL_CHOICES)
+    descricao = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.nome
