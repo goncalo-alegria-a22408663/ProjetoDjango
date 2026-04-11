@@ -113,14 +113,13 @@ Todas as relações M:N do `MakingOf` têm `blank=True` porque são opcionais po
 
 ## 5. Uso de Inteligência Artificial
 
-Utilizei o Claude (Anthropic) como apoio durante todo o processo:
+Utilizei o Claude como apoio durante o processo:
 
 - **Modelação:** Usei o Claude para discutir alternativas de modelação (ex: M:N vs FK em UC↔Licenciatura, criar entidade Instituicao ou não, escolha de choices, etc.). Todas as decisões finais foram tomadas por mim, com base nas trocas de ideias.
-- **Implementação:** Pedi ajuda para escrever o código dos modelos e do Admin, principalmente devido a constrangimentos de tempo. Cada modelo foi implementado e commitado separadamente, seguindo as boas práticas do enunciado.
-- **Análise do JSON dos TFCs:** O Claude ajudou-me a inspecionar a estrutura real do JSON e a confirmar que alguns TFCs pertencem a várias licenciaturas, o que justificou a escolha M:N.
+- **Implementação:** Usei o Claude para validar o código dos modelos e do Admin, garantindo que estava correto e seguia as boas práticas.
+- **Análise do JSON dos TFCs:** Após eu ter identificado que alguns TFCs pertencem a várias licenciaturas, o Claude ajudou-me a confirmar essa observação inspecionando a estrutura do JSON, o que reforçou a escolha M:N.
 - **Debug:** O Claude ajudou-me a identificar a causa do timeout no Codespace e a alternativa de descarregar os JSONs localmente.
-
-Sou capaz de explicar e adaptar todas as decisões e código presentes no projeto.
+- **Documentação:** O Claude ajudou-me a estruturar e formatar o ficheiro MakingOf.md, deixando-o esteticamente organizado e legível.
 
 ---
 
