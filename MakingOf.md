@@ -120,6 +120,7 @@ Utilizei o Claude como apoio durante o processo:
 - **Análise do JSON dos TFCs:** Após eu ter identificado que alguns TFCs pertencem a várias licenciaturas, o Claude ajudou-me a confirmar essa observação inspecionando a estrutura do JSON, o que reforçou a escolha M:N.
 - **Debug:** O Claude ajudou-me a identificar a causa do timeout no Codespace e a alternativa de descarregar os JSONs localmente.
 - **Documentação:** O Claude ajudou-me a estruturar e formatar o ficheiro MakingOf.md, deixando-o esteticamente organizado e legível.
+- **Organização do trabalho:** Usei o Claude como uma checklist viva dos passos a seguir, confirmando o que já tinha feito e o que faltava, evitando repetir etapas ou perder tempo em coisas já concluídas.
 
 ---
 
