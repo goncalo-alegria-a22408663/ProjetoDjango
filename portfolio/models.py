@@ -132,3 +132,24 @@ class TFC(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class Projeto(models.Model):
+    titulo = models.CharField(max_length=200)
+    descricao = models.TextField()
+    conceitos_aplicados = models.TextField(blank=True)
+    data_realizacao = models.DateField()
+    imagem = models.ImageField(upload_to='projetos/', blank=True)
+    link_video_demo = models.URLField(blank=True)
+    link_github = models.URLField(blank=True)
+    nota_obtida = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
+
+    unidade_curricular = models.ForeignKey(
+        UnidadeCurricular,
+        on_delete=models.CASCADE,
+        related_name='projetos'
+    )
+    tecnologias = models.ManyToManyField(Tecnologia, related_name='projetos', blank=True)
+
+    def __str__(self):
+        return self.titulo
