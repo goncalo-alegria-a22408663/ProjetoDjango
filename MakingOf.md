@@ -34,64 +34,105 @@ As fotos do trabalho em papel estão na pasta `media/makingof/`:
 
 ---
 
-## 3. Decisões e justificações
+## 3. Decisões e justificações por entidade
 
-### 3.1. UC ↔ Licenciatura: Many-to-Many
-Uma UC pode pertencer a várias licenciaturas (ex: "Programação" aparece em LEI, LIG, etc.). Assumi que ano, semestre e ECTS são iguais em todas as licenciaturas onde a UC aparece, por isso esses atributos ficam na própria UC e não numa tabela intermédia. Caso esta premissa deixe de ser válida, seria necessário introduzir uma entidade intermédia `UCnoCurso` com `through=`.
+### 3.1. Licenciatura
 
-### 3.2. Docente como entidade própria (entidade adicional)
-O enunciado pedia para "identificar os docentes associados" às UCs, mas não obrigava a criar uma entidade própria — poderia ter sido resolvido com um simples CharField. Optei por modelar `Docente` como entidade independente porque:
-- Permite normalização (um docente leciona várias UCs sem duplicação de dados)
-- Permite armazenar atributos ricos como habilitação académica e regime de contrato (informação pública no site oficial do DEISI)
-- Facilita futuras extensões (orientadores de TFCs, projetos, etc.)
+**Decisão 1 — `instituicao` como CharField (não entidade própria)**
+Considerei extrair `Instituicao` como entidade própria com FK a partir de `Licenciatura` e `Formacao`. Decidi não o fazer porque, no contexto deste portfólio, todas as licenciaturas pertencem à Universidade Lusófona — criar uma entidade própria para um único valor seria sobre-engenharia desnecessária (princípio YAGNI).
 
-Esta é a minha **entidade adicional** exigida pelo requisito do enunciado.
+**Decisão 2 — Manter o nome `Licenciatura` (e não generalizar para `Curso`)**
+Após analisar o JSON dos TFCs, vi que existem TFCs de Mestrado e Doutoramento. Considerei renomear para `Curso`, mas optei por manter `Licenciatura` porque o portfólio é centrado no meu percurso de licenciatura. TFCs de outros graus são filtrados no carregamento.
 
-### 3.3. Uso de `choices` em vez de texto livre
-Em `Docente.habilitacao`, `Docente.regime_contrato`, `Tecnologia.categoria`, `Competencia.tipo` e `Competencia.nivel` usei `choices` para garantir consistência dos dados (evitar valores inconsistentes como "Doutorado" vs "Doutoramento") e para o Admin gerar dropdowns automaticamente, facilitando filtros.
+---
 
-### 3.4. Habilitação "Agregação"
-Adicionei "Agregação" às habilitações dos docentes porque verifiquei no site oficial do DEISI que existe pelo menos um docente com esse grau (Aleksandar Mikovic).
+### 3.2. UnidadeCurricular
 
-### 3.5. `instituicao` como CharField (não entidade própria)
-Considerei extrair `Instituicao` como entidade própria com FK a partir de `Licenciatura` e `Formacao`, para melhor normalização. Decidi não o fazer porque, no contexto deste portfólio, todas as licenciaturas pertencem à Universidade Lusófona — criar uma entidade própria para um único valor seria sobre-engenharia desnecessária (princípio YAGNI). Caso o portfólio venha a incluir formações de outras instituições no futuro, esta decisão pode ser facilmente revertida.
+**Decisão 1 — UC ↔ Licenciatura: Many-to-Many**
+Uma UC pode pertencer a várias licenciaturas (ex: "Programação" aparece em LEI, LIG, etc.). Assumi que ano, semestre e ECTS são iguais em todas as licenciaturas onde a UC aparece, por isso esses atributos ficam na própria UC.
 
-### 3.6. MakingOf com M:N opcional para todas as entidades
-Em vez de uma única ForeignKey ou um campo de texto a indicar a entidade documentada, modelei `MakingOf` com `ManyToManyField` opcional (`blank=True`) para todas as entidades. Isto permite:
-- Um mesmo registo de Making Of documentar decisões transversais que afetam várias entidades simultaneamente
-- Cada entidade ter vários Making Ofs ao longo do tempo, refletindo a evolução do modelo
+**Decisão 2 — UC ↔ Docente: Many-to-Many**
+Uma UC pode ter vários docentes e um docente leciona várias UCs. Modelei como M:N para refletir esta realidade.
 
-Esta abordagem está alinhada com a indicação do enunciado de que "esta informação deverá estar estruturada e relacionada, sempre que fizer sentido, com outras entidades".
+---
 
-### 3.7. Tecnologia com `nivel_interesse`
-Pedido explicitamente pelo enunciado, para representar o meu nível de interesse/preferência por cada tecnologia. Usei `IntegerField` com choices de 1 a 5 (escala simples e clara, com labels descritivos).
+### 3.3. Docente *(entidade adicional)*
 
-### 3.8. Projeto com FK para UC (1:N)
-Cada projeto foi feito no contexto de uma UC específica, por isso a relação é 1:N (um projeto pertence a uma UC; uma UC pode ter vários projetos). Não faz sentido um projeto ser partilhado entre várias UCs.
+**Decisão 1 — Docente como entidade própria**
+O enunciado pedia para "identificar os docentes associados", mas não obrigava a criar uma entidade. Optei por modelar como entidade independente para permitir normalização e atributos ricos. Esta é a **entidade adicional** exigida.
 
-### 3.9. TFC ↔ Licenciatura: Many-to-Many
-Inicialmente considerei FK, mas após analisar o ficheiro JSON real dos TFCs de 2025, confirmei que existem TFCs que pertencem a mais que uma licenciatura (ex: um TFC partilhado entre LEI e LIG). Por isso a relação é M:N.
+**Decisão 2 — Habilitação "Agregação" e uso de `choices`**
+Adicionei "Agregação" às habilitações porque verifiquei no site oficial do DEISI que existe pelo menos um docente com esse grau. Usei `choices` para garantir consistência (evitar "Doutorado" vs "Doutoramento").
 
-### 3.10. TFC modelado com base no JSON real
-Após analisar o ficheiro `tfcs_2025.json`, ajustei a entidade TFC à estrutura real dos dados:
-- Adicionei campos que existiam no JSON: `palavras_chave`, `areas`, `tecnologias_usadas`, `link_pdf`, `imagem`, `orientadores`
-- Renomeei `descricao` → `sumario` e `nivel_interesse` → `rating` para refletir os nomes do JSON
-- `imagem` é `URLField` (não `ImageField`) porque o JSON tem URLs externas em vez de ficheiros para upload
+---
 
-### 3.11. Áreas, tecnologias e orientadores em TFC como CharField
-Considerei criar entidades próprias e relações M:N para `areas`, `tecnologias_usadas` e `orientadores` em TFC, mas optei por mantê-los como `CharField` (separados por `;`) por simplicidade. As relações ricas com tecnologias existem para a entidade `Projeto`, que é onde fazem mais sentido para o meu portfólio pessoal.
+### 3.4. Projeto
 
-### 3.12. Filtragem de TFCs no carregamento
-O script `load_tfcs` filtra apenas TFCs de licenciatura. Dos 86 TFCs no JSON, 47 são de licenciatura e foram carregados; 37 são de Mestrado/Doutoramento ou têm o campo `licenciaturas` vazio e foram ignorados. Esta decisão é coerente com a escolha de manter a entidade chamada `Licenciatura` em vez de a generalizar para `Curso`.
+**Decisão 1 — Projeto → UC: ForeignKey (1:N)**
+Cada projeto foi feito no contexto de uma UC específica, por isso a relação é 1:N. Não faz sentido um projeto ser partilhado entre várias UCs.
 
-### 3.13. Carregamento das UCs via API da Lusófona
-O carregamento das UCs do curso de LEI é feito a partir dos JSONs descarregados da API oficial da Lusófona (`secure.ensinolusofona.pt`), guardados em `data/lusofona/`. O script `load_curso_ucs` lê o ficheiro do curso e cada ficheiro de UC, criando os registos correspondentes na BD. Os JSONs originais contêm muito mais informação (bibliografia, métodos de avaliação, horários, etc.) — armazenei apenas os campos relevantes para o portfólio (nome, código, ano, semestre, ECTS, descrição), mantendo os ficheiros originais para futura expansão.
+**Decisão 2 — Projeto ↔ Tecnologia: Many-to-Many**
+Um projeto usa várias tecnologias e uma tecnologia é usada em vários projetos. Esta relação permite navegação cruzada (ex: ver todos os projetos que usam Django).
 
-### 3.14. Ordem das classes em models.py
-As classes estão definidas pela ordem necessária para evitar erros de referência: primeiro as independentes (`Licenciatura`, `Docente`, `Competencia`, `Formacao`), depois as dependentes (`UnidadeCurricular`, `Tecnologia`, `TFC`), depois `Projeto`, e por último `MakingOf`. Uma classe só pode referenciar outra que já tenha sido definida acima.
+---
 
-### 3.15. `blank=True` nas relações do MakingOf
-Todas as relações M:N do `MakingOf` têm `blank=True` porque são opcionais por natureza — um Making Of documenta apenas algumas entidades, não todas. Sem `blank=True`, o Admin obrigaria a preencher as 8 relações em todos os registos.
+### 3.5. Tecnologia
+
+**Decisão 1 — Atributo `nivel_interesse`**
+Pedido explicitamente pelo enunciado. Usei `IntegerField` com choices de 1 a 5 (escala simples e clara, com labels descritivos).
+
+**Decisão 2 — `categoria` com choices**
+Categorizei tecnologias em Linguagem / Framework / Ferramenta / Base de Dados, usando `choices` para consistência e para permitir filtros no Admin.
+
+---
+
+### 3.6. TFC
+
+**Decisão 1 — TFC ↔ Licenciatura: Many-to-Many**
+Após analisar o JSON real dos TFCs de 2025, confirmei que existem TFCs partilhados entre licenciaturas (ex: LEI + LIG). Por isso a relação é M:N.
+
+**Decisão 2 — Modelado com base no JSON real**
+Ajustei a entidade aos campos reais do JSON: `sumario` (em vez de `descricao`), `rating` (em vez de `nivel_interesse`), `palavras_chave`, `areas`, `tecnologias_usadas`, `link_pdf`, `imagem` como URLField. Mantive `areas`, `tecnologias_usadas` e `orientadores` como CharField (separados por `;`) por simplicidade.
+
+---
+
+### 3.7. Competencia
+
+**Decisão 1 — Atributos `tipo` e `nivel` com choices**
+Categorizei as competências em Técnica / Soft Skill / Linguística e níveis Básico / Intermédio / Avançado, usando `choices` para garantir consistência e permitir filtros.
+
+**Decisão 2 — Entidade independente (não embutida em Tecnologia)**
+Considerei colocar competências como atributo de Tecnologia, mas modelei como entidade própria porque competências também podem ser independentes de tecnologias (ex: "Trabalho em Equipa" é uma soft skill sem ligação direta a tecnologia).
+
+---
+
+### 3.8. Formacao
+
+**Decisão 1 — `data_fim` opcional (`blank=True, null=True`)**
+Uma formação pode estar em curso no momento do registo, por isso `data_fim` é opcional.
+
+**Decisão 2 — Entidade isolada (sem relações obrigatórias)**
+Optei por não criar relações M:N obrigatórias entre Formacao e Tecnologia/Competencia para manter a entidade simples. Caso seja necessário no futuro, é fácil acrescentar.
+
+---
+
+### 3.9. MakingOf
+
+**Decisão 1 — M:N opcional para todas as entidades**
+Em vez de uma única FK ou um campo de texto, modelei com M:N opcional (`blank=True`) para todas as entidades. Isto permite documentar decisões transversais e múltiplos MakingOfs por entidade ao longo do tempo.
+
+**Decisão 2 — `blank=True` em todas as relações**
+Sem `blank=True`, o Admin obrigaria a preencher as 8 relações em todos os registos, o que não faz sentido — um MakingOf documenta apenas algumas entidades, não todas.
+
+---
+
+### 3.10. Decisões transversais
+
+**Ordem das classes em `models.py`**
+As classes estão definidas pela ordem necessária para evitar erros de referência: independentes primeiro (Licenciatura, Docente, Competencia, Formacao), depois dependentes (UC, Tecnologia, TFC), depois Projeto, e por último MakingOf.
+
+**Filtragem de TFCs no carregamento**
+Dos 86 TFCs no JSON, 47 são de licenciatura e foram carregados; 37 são de Mestrado/Doutoramento e foram ignorados, coerentemente com a escolha de manter a entidade `Licenciatura`.
 
 ---
 
