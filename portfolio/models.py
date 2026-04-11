@@ -153,3 +153,16 @@ class Projeto(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class Formacao(models.Model):
+    nome = models.CharField(max_length=200)
+    instituicao = models.CharField(max_length=200)
+    data_inicio = models.DateField()
+    data_fim = models.DateField(blank=True, null=True)
+    descricao = models.TextField(blank=True)
+    certificado = models.FileField(upload_to='formacoes/', blank=True)
+    link = models.URLField(blank=True)
+
+    def __str__(self):
+        return self.nome
