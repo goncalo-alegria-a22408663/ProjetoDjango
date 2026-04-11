@@ -76,3 +76,33 @@ class Competencia(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class Tecnologia(models.Model):
+    CATEGORIA_CHOICES = [
+        ('LING', 'Linguagem'),
+        ('FRAME', 'Framework'),
+        ('FERR', 'Ferramenta'),
+        ('BD', 'Base de Dados'),
+    ]
+
+    NIVEL_INTERESSE_CHOICES = [
+        (1, '1 - Muito Baixo'),
+        (2, '2 - Baixo'),
+        (3, '3 - Médio'),
+        (4, '4 - Alto'),
+        (5, '5 - Muito Alto'),
+    ]
+
+    nome = models.CharField(max_length=100)
+    categoria = models.CharField(max_length=10, choices=CATEGORIA_CHOICES)
+    descricao = models.TextField()
+    logo = models.ImageField(upload_to='tecnologias/', blank=True)
+    link_oficial = models.URLField(blank=True)
+    nivel_interesse = models.IntegerField(choices=NIVEL_INTERESSE_CHOICES, default=3)
+    aspetos_relevantes = models.TextField(blank=True)
+
+    competencias = models.ManyToManyField(Competencia, related_name='tecnologias', blank=True)
+
+    def __str__(self):
+        return self.nome
