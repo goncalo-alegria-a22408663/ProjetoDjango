@@ -166,3 +166,25 @@ class Formacao(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class MakingOf(models.Model):
+    titulo = models.CharField(max_length=200)
+    data = models.DateField()
+    descricao_processo = models.TextField()
+    decisoes_tomadas = models.TextField(blank=True)
+    erros_e_correcoes = models.TextField(blank=True)
+    uso_ia = models.TextField(blank=True)
+    foto_caderno = models.ImageField(upload_to='makingof/', blank=True)
+
+    licenciaturas = models.ManyToManyField(Licenciatura, related_name='makingofs', blank=True)
+    ucs = models.ManyToManyField(UnidadeCurricular, related_name='makingofs', blank=True)
+    docentes = models.ManyToManyField(Docente, related_name='makingofs', blank=True)
+    projetos = models.ManyToManyField(Projeto, related_name='makingofs', blank=True)
+    tecnologias = models.ManyToManyField(Tecnologia, related_name='makingofs', blank=True)
+    tfcs = models.ManyToManyField(TFC, related_name='makingofs', blank=True)
+    competencias = models.ManyToManyField(Competencia, related_name='makingofs', blank=True)
+    formacoes = models.ManyToManyField(Formacao, related_name='makingofs', blank=True)
+
+    def __str__(self):
+        return self.titulo
