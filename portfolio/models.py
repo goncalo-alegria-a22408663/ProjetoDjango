@@ -106,3 +106,29 @@ class Tecnologia(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class TFC(models.Model):
+    RATING_CHOICES = [
+        (1, '1 - Muito Baixo'),
+        (2, '2 - Baixo'),
+        (3, '3 - Médio'),
+        (4, '4 - Alto'),
+        (5, '5 - Muito Alto'),
+    ]
+
+    titulo = models.CharField(max_length=300)
+    sumario = models.TextField()
+    autores = models.CharField(max_length=500, blank=True)
+    orientadores = models.CharField(max_length=500, blank=True)
+    imagem = models.URLField(blank=True)
+    link_pdf = models.URLField(blank=True)
+    palavras_chave = models.CharField(max_length=500, blank=True)
+    areas = models.CharField(max_length=500, blank=True)
+    tecnologias_usadas = models.CharField(max_length=500, blank=True)
+    rating = models.IntegerField(choices=RATING_CHOICES, default=3)
+
+    licenciaturas = models.ManyToManyField(Licenciatura, related_name='tfcs', blank=True)
+
+    def __str__(self):
+        return self.titulo
