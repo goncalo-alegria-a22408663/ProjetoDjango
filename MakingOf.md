@@ -168,3 +168,93 @@ Utilizei o Claude como apoio durante o processo:
 ## 6. Requisito adicional cumprido
 
 A entidade adicional exigida pelo enunciado é a **`Docente`**, conforme justificado no ponto 3.2.
+
+---
+
+# Parte 2 — Ficha 7 (Views e Templates)
+
+A Ficha 7 introduz a camada **View** e **Template** do padrão MVT do Django. O trabalho dividiu-se em duas partes: implementar de raiz uma aplicação simples para uma escola (exercício guiado), e depois aplicar o mesmo padrão ao portfólio (uma view, template e rota por cada modelo).
+
+## 7. App `escola` (exercício guiado)
+
+### 7.1. Estrutura da app
+
+Criei uma nova app `escola` separada do `portfolio`, com três modelos: `Professor`, `Aluno` e `Curso`. As relações foram:
+
+- `Curso → Professor` como ForeignKey (1:N): um curso tem um professor, um professor leciona vários cursos.
+- `Curso ↔ Aluno` como ManyToManyField (M:N): um curso tem vários alunos, um aluno frequenta vários cursos.
+
+Em ambas as relações usei `related_name='cursos'`, o que permite navegação reversa intuitiva: `professor.cursos.all()` e `aluno.cursos.all()`.
+
+### 7.2. Implementação MVT
+
+Para cada uma das três entidades (Curso, Professor, Aluno) implementei o ciclo completo: **view** em `views.py`, **template** em `templates/escola/`, e **rota** em `urls.py`. O template base (`base.html`) define o layout comum (header, nav, main com bloco `content`, footer) e os outros estendem-no.
+
+### 7.3. Decisão — Otimização de queries
+
+Em cada view, usei `select_related` ou `prefetch_related` para evitar o problema **N+1 queries**:
+
+- **`select_related('professor')`** em `cursos_view`: faz um JOIN em SQL, ideal quando navego do lado da ForeignKey para o "pai" (curso → professor é 1).
+- **`prefetch_related('alunos')`** em `cursos_view`: faz uma segunda query e junta em memória, necessário para relações M:N e reverse FK (curso → alunos pode ser N).
+- **`prefetch_related('cursos')`** em `professores_view` e `alunos_view`: navego a reverse FK (`professor.cursos`) e a M:N reversa (`aluno.cursos`), ambas potencialmente N — por isso `select_related` não serve aqui.
+
+### 7.4. Decisão — Estrutura HTML5 semântica
+
+Usei elementos semânticos (`section`, `article`, `header`, `nav`, `main`, `footer`) em vez de `div` genéricos. Isto facilitou a estilização (o CSS pode atacar `article > header > h3` sem precisar de classes) e tornou a marcação reutilizável: o `cursos.html`, `professores.html` e `alunos.html` partilham exatamente a mesma estrutura (`<section>` → `<article>` → `<header>` + `<section>` interno), pelo que o mesmo CSS estiliza as três páginas.
+
+### 7.5. Decisão — Página de detalhe de um curso
+
+Implementei uma rota parametrizada `path('curso/<int:id>', ...)` que recebe o `id` do curso e mostra uma página de detalhe com a imagem, professor e alunos. Os links foram colocados a partir da página de alunos (cada curso na lista de cursos do aluno é clicável), seguindo o enunciado.
+
+### 7.6. Decisão — Não estender link clicável ao `professores.html`
+
+Considerei aplicar o mesmo padrão de link clicável também na lista de cursos dos professores, para consistência de navegação. No fim optei por seguir o enunciado à letra, que só pede os links na página de alunos. Decisão pragmática: priorizar conformidade ao enunciado sobre uniformidade visual.
+
+### 7.7. Decisão — Melhoria das rotas (raiz no escola)
+
+A ficha sugere uma "melhoria" em que o `/` da aplicação aponta para a app escola, evitando o prefixo `/escola/`. Aceitei a sugestão da ficha mesmo sabendo que, num projeto com múltiplas apps (escola + portfolio), faria mais sentido a raiz pertencer ao portfólio. A escolha foi seguir o enunciado; se em fichas futuras for pedido para a raiz apontar para o portfólio, esta configuração será revista.
+
+### 7.8. Estilização
+
+Criei `escola/static/escola/styles.css` baseado no exemplo da ficha, com layout em cards (background branco, cantos arredondados, sombra subtil), header e footer escuros, e elementos da lista renderizados como "pills" azuis arredondadas. Configurei `STATIC_ROOT` no `settings.py` e corri `collectstatic`. O CSS depende inteiramente da estrutura HTML semântica (seletores CSS sem classes), o que se provou ser uma decisão acertada na Parte 2 quando reaproveitei o mesmo CSS no portfólio.
+
+---
+
+## 8. Views do Portfólio
+
+Após terminar a app escola, apliquei o mesmo padrão ao portfólio: para cada um dos 9 modelos (`Licenciatura`, `Docente`, `UnidadeCurricular`, `Competencia`, `Tecnologia`, `TFC`, `Projeto`, `Formacao`, `MakingOf`) criei uma **view** de listagem, um **template** e uma **rota**.
+
+### 8.1. Decisão — Reaproveitamento da estrutura HTML e CSS
+
+Copiei o `styles.css` e a estrutura HTML do template `base.html` da app escola para a app portfolio (`portfolio/static/portfolio/styles.css` e `portfolio/templates/portfolio/base.html`). Como os templates de cada modelo seguem a mesma estrutura semântica (`<section>` → `<article>` → `<header>` + `<section>` interno), o CSS funciona sem alterações.
+
+### 8.2. Decisão — Apenas listagens (sem páginas de detalhe)
+
+O enunciado pede "uma view, um template e a respetiva URL para cada classe". Interpretei isto como uma listagem por modelo, sem páginas de detalhe (que apenas a app escola implementa, como exemplo). Esta decisão mantém o esforço alinhado com o pedido e deixa espaço para fichas futuras estenderem o trabalho.
+
+### 8.3. Decisão — Otimização de queries por modelo
+
+Apliquei `select_related` e `prefetch_related` consoante a estrutura de relações de cada modelo:
+
+- **Sem relações no template** (`Licenciatura`, `Docente`, `Competencia`, `Formacao`): nenhum prefetch.
+- **M:N**: `prefetch_related` (`Tecnologia.competencias`, `UC.licenciaturas`/`docentes`, `TFC.licenciaturas`).
+- **FK + M:N** (`Projeto`): `select_related('unidade_curricular')` + `prefetch_related('tecnologias')`.
+- **M:N múltiplas** (`MakingOf`): `prefetch_related` de todas as 8 relações em simultâneo.
+
+### 8.4. Decisão — Campos mostrados em cada card
+
+Para cada modelo escolhi os campos mais informativos numa listagem: tipicamente nome/título e tipo/categoria no `<header>`, e relações ou metadados na `<section>` interna. Para `Docente`, `Tecnologia` e `Competencia` usei os métodos `get_<campo>_display()` para obter o label legível dos `choices` (ex: "Doutoramento" em vez de "DOUT").
+
+### 8.5. Estrutura de URLs
+
+Todas as rotas do portfólio ficam sob o prefixo `/portfolio/` (configurado no `project/urls.py` com `include('portfolio.urls')`). As 9 rotas seguem o padrão `path('nome_plural/', views.nome_plural_view, name="nome_plural")`.
+
+---
+
+## 9. Uso de Inteligência Artificial (Ficha 7)
+
+Continuei a usar o Claude como apoio, no mesmo espírito da Ficha 6:
+
+- **Modelação conceptual:** Discuti com o Claude qual a diferença entre `select_related` e `prefetch_related`, e quando aplicar cada um. Validei o meu raciocínio para cada view do portfólio antes de implementar.
+- **Debug:** O Claude ajudou a diagnosticar erros como `NameError: include is not defined`, `ModuleNotFoundError: escola.urls`, e gralhas em templates (ex: `{% for x in y}` sem `%`).
+- **Mensagens de commit:** Pedi ao Claude para gerar mensagens de commit descritivas a cada passo, mantendo o histórico legível.
