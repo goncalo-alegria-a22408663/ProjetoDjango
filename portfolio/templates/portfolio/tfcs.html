@@ -1,0 +1,31 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>TFCs</h2>
+
+<section>
+    {% for tfc in tfcs %}
+    <article>
+        {% if tfc.imagem %}
+        <img src="{{ tfc.imagem }}" alt="Imagem {{ tfc.titulo }}">
+        {% endif %}
+
+        <header>
+            <h3>{{ tfc.titulo }}</h3>
+            <p>Rating: {{ tfc.get_rating_display }}</p>
+        </header>
+
+        <section>
+            <h4>Licenciaturas</h4>
+            <ul>
+                {% for lic in tfc.licenciaturas.all %}
+                    <li>{{ lic.sigla }}</li>
+                {% empty %}
+                    <li>Sem licenciaturas associadas</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

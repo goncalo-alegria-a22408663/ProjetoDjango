@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Licenciatura, Docente, Competencia, Formacao, Tecnologia, UnidadeCurricular
+from .models import Licenciatura, Docente, Competencia, Formacao, Tecnologia, UnidadeCurricular, TFC
 
 
 def licenciaturas_view(request):
@@ -28,3 +28,7 @@ def tecnologias_view(request):
 def ucs_view(request):
     ucs = (UnidadeCurricular.objects.prefetch_related('licenciaturas', 'docentes').all())
     return render(request, 'portfolio/ucs.html', {'ucs': ucs})
+
+def tfcs_view(request):
+    tfcs = TFC.objects.prefetch_related('licenciaturas').all()
+    return render(request, 'portfolio/tfcs.html', {'tfcs': tfcs})
