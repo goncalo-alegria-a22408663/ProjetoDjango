@@ -1,0 +1,27 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Formações</h2>
+
+<section>
+    {% for formacao in formacoes %}
+    <article>
+        <header>
+            <h3>{{ formacao.nome }}</h3>
+            <p>{{ formacao.instituicao }}</p>
+        </header>
+
+        <section>
+            <h4>Datas</h4>
+            <ul>
+                <li>Início: {{ formacao.data_inicio }}</li>
+                <li>Fim: {{ formacao.data_fim|default:"Em curso" }}</li>
+                {% if formacao.link %}
+                <li><a href="{{ formacao.link }}">Mais informação</a></li>
+                {% endif %}
+            </ul>
+        </section>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

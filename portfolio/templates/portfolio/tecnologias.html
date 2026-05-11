@@ -1,0 +1,31 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Tecnologias</h2>
+
+<section>
+    {% for tecnologia in tecnologias %}
+    <article>
+        {% if tecnologia.logo %}
+        <img src="{{ tecnologia.logo.url }}" alt="Logo {{ tecnologia.nome }}">
+        {% endif %}
+
+        <header>
+            <h3>{{ tecnologia.nome }}</h3>
+            <p>{{ tecnologia.get_categoria_display }} — Interesse: {{ tecnologia.get_nivel_interesse_display }}</p>
+        </header>
+
+        <section>
+            <h4>Competências</h4>
+            <ul>
+                {% for c in tecnologia.competencias.all %}
+                    <li>{{ c.nome }}</li>
+                {% empty %}
+                    <li>Sem competências associadas</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

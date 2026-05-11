@@ -1,0 +1,34 @@
+<!-- templates/portfolio/base.html -->
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfólio</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'portfolio/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Portfólio</h1>
+        <nav>
+            <a href="{% url 'licenciaturas' %}">Licenciaturas</a>
+            <a href="{% url 'docentes' %}">Docentes</a>
+            <a href="{% url 'formacoes' %}">Formações</a>
+            <a href="{% url 'tecnologias' %}">Tecnologias</a>
+            
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Gonçalo Alegria</p>
+    </footer>
+</body>
+</html>

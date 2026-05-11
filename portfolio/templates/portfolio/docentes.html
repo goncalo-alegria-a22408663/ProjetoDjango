@@ -1,0 +1,29 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Docentes</h2>
+
+<section>
+    {% for docente in docentes %}
+    <article>
+        {% if docente.foto %}
+        <img src="{{ docente.foto.url }}" alt="Foto {{ docente.nome }}">
+        {% endif %}
+
+        <header>
+            <h3>{{ docente.nome }}</h3>
+            <p>{{ docente.get_habilitacao_display }} — {{ docente.get_regime_contrato_display }}</p>
+        </header>
+
+        {% if docente.link_pagina_pessoal %}
+        <section>
+            <h4>Página</h4>
+            <ul>
+                <li><a href="{{ docente.link_pagina_pessoal }}">Página pessoal</a></li>
+            </ul>
+        </section>
+        {% endif %}
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Licenciaturas</h2>
+
+<section>
+    {% for licenciatura in licenciaturas %}
+    <article>
+        {% if licenciatura.imagem %}
+        <img src="{{ licenciatura.imagem.url }}" alt="Imagem {{ licenciatura.nome }}">
+        {% endif %}
+
+        <header>
+            <h3>{{ licenciatura.sigla }} — {{ licenciatura.nome }}</h3>
+            <p>{{ licenciatura.instituicao }}</p>
+        </header>
+
+        <section>
+            <h4>Detalhes</h4>
+            <ul>
+                <li>{{ licenciatura.duracao_anos }} anos</li>
+                <li>{{ licenciatura.total_ects }} ECTS</li>
+                {% if licenciatura.link_oficial %}
+                <li><a href="{{ licenciatura.link_oficial }}">Site oficial</a></li>
+                {% endif %}
+            </ul>
+        </section>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}
