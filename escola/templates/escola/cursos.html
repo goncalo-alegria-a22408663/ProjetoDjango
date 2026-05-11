@@ -1,5 +1,3 @@
-<!-- templates/escola/cursos.html -->
-
 {% extends "escola/base.html" %}
 
 {% block content %}
@@ -8,6 +6,8 @@
 <section>
     {% for curso in cursos %}
     <article>
+        <img src="{{ curso.imagem.url }}" alt="Logótipo {{ curso.nome }}">
+
         <header>
             <h3>{{ curso.nome }}</h3>
             <p>Professor: {{ curso.professor.nome }}</p>
