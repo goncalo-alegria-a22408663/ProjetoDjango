@@ -11,16 +11,20 @@
 
         </header>
 
-    <section>
-        <h4>Cursos</h4>
-        <ul>
-            {% for curso in aluno.cursos.all %}
-            <li>{{curso.nome}}</li>
-            {% empty %}
-            <li>Não participa em nenhum curso</li>
-            {% endfor %}
-        </ul>
-    </section>
+        <section>
+            <h4>Cursos</h4>
+                <ul>
+                    {% for curso in aluno.cursos.all %}
+                        <li>
+                            <a href="{% url 'curso' curso.id %}">
+                            {{ curso.nome }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li>Não participa em nenhum curso</li>
+                    {% endfor %}
+                </ul>
+        </section>
     </article>
     {% endfor %}
 </section>
