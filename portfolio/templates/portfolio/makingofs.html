@@ -1,0 +1,34 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Making Of</h2>
+
+<section>
+    {% for makingof in makingofs %}
+    <article>
+        {% if makingof.foto_caderno %}
+        <img src="{{ makingof.foto_caderno.url }}" alt="Foto caderno {{ makingof.titulo }}">
+        {% endif %}
+
+        <header>
+            <h3>{{ makingof.titulo }}</h3>
+            <p>{{ makingof.data }}</p>
+        </header>
+
+        <section>
+            <h4>Entidades documentadas</h4>
+            <ul>
+                {% for x in makingof.licenciaturas.all %}<li>Licenciatura: {{ x.sigla }}</li>{% endfor %}
+                {% for x in makingof.ucs.all %}<li>UC: {{ x.codigo }}</li>{% endfor %}
+                {% for x in makingof.docentes.all %}<li>Docente: {{ x.nome }}</li>{% endfor %}
+                {% for x in makingof.projetos.all %}<li>Projeto: {{ x.titulo }}</li>{% endfor %}
+                {% for x in makingof.tecnologias.all %}<li>Tecnologia: {{ x.nome }}</li>{% endfor %}
+                {% for x in makingof.tfcs.all %}<li>TFC: {{ x.titulo }}</li>{% endfor %}
+                {% for x in makingof.competencias.all %}<li>Competência: {{ x.nome }}</li>{% endfor %}
+                {% for x in makingof.formacoes.all %}<li>Formação: {{ x.nome }}</li>{% endfor %}
+            </ul>
+        </section>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}
