@@ -1,7 +1,6 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 from .models import Curso
 
-def lista_cursos(request):
-    cursos = Curso.objects.all()
-    texto = "Cursos:\n" + "\n".join(c.nome for c in cursos)
-    return HttpResponse(texto, content_type="text/plain")
+def cursos_view(request):
+    cursos = Curso.objects.select_related('professor').prefetch_related('alunos').all()
+    return render(request, 'escola/cursos.html', {'cursos': cursos})
