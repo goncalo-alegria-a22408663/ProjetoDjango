@@ -1,0 +1,42 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Unidades Curriculares</h2>
+
+<section>
+    {% for uc in ucs %}
+    <article>
+        {% if uc.imagem %}
+        <img src="{{ uc.imagem.url }}" alt="Imagem {{ uc.nome }}">
+        {% endif %}
+
+        <header>
+            <h3>{{ uc.codigo }} — {{ uc.nome }}</h3>
+            <p>{{ uc.ano }}º ano · {{ uc.semestre }}º semestre · {{ uc.ects }} ECTS</p>
+        </header>
+
+        <section>
+            <h4>Licenciaturas</h4>
+            <ul>
+                {% for lic in uc.licenciaturas.all %}
+                    <li>{{ lic.sigla }}</li>
+                {% empty %}
+                    <li>Sem licenciaturas associadas</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section>
+            <h4>Docentes</h4>
+            <ul>
+                {% for d in uc.docentes.all %}
+                    <li>{{ d.nome }}</li>
+                {% empty %}
+                    <li>Sem docentes associados</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}
