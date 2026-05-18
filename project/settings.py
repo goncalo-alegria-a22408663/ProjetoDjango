@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'portfolio',
     'escola',
     'accounts',
+    'artigos',
     'markdownify.apps.MarkdownifyConfig',
 ]
 
