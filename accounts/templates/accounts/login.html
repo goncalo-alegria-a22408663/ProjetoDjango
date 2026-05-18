@@ -1,0 +1,26 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Login</h2>
+
+{% if mensagem %}
+    <p><strong>{{ mensagem }}</strong></p>
+{% endif %}
+
+<form action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <p>
+        <label>Username:</label>
+        <input type="text" name="username" placeholder="Username..." required>
+    </p>
+    <p>
+        <label>Password:</label>
+        <input type="password" name="password" placeholder="Password..." required>
+    </p>
+    <input type="submit" value="Entrar">
+</form>
+
+<p>
+    Não tem conta? <a href="{% url 'registo' %}">Registar</a>
+</p>
+{% endblock %}
