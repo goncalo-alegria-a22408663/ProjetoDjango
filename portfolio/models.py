@@ -78,6 +78,14 @@ class Competencia(models.Model):
         return self.nome
 
 
+class Tipo(models.Model):
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.nome
+
+
 class Tecnologia(models.Model):
     CATEGORIA_CHOICES = [
         ('LING', 'Linguagem'),
@@ -99,6 +107,7 @@ class Tecnologia(models.Model):
     descricao = models.TextField()
     logo = models.ImageField(upload_to='tecnologias/', blank=True)
     link_oficial = models.URLField(blank=True)
+    tipo = models.ForeignKey(Tipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='tecnologias')
     nivel_interesse = models.IntegerField(choices=NIVEL_INTERESSE_CHOICES, default=3)
     aspetos_relevantes = models.TextField(blank=True)
 
@@ -188,3 +197,5 @@ class MakingOf(models.Model):
 
     def __str__(self):
         return self.titulo
+
+

@@ -1,0 +1,71 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Sobre esta Aplicação</h2>
+
+<article>
+    <header><h3>1. Arquitetura MVT do Django</h3></header>
+    <p>O padrão MVT (Model-View-Template) é a forma como o Django organiza o código:</p>
+    <ul>
+        <li><strong>Model</strong> — define as entidades e as suas relações; cada classe corresponde a uma tabela na base de dados (ficheiro <code>models.py</code>).</li>
+        <li><strong>View</strong> — função em Python que recebe um pedido HTTP, consulta os Models necessários e devolve uma resposta (ficheiro <code>views.py</code>).</li>
+        <li><strong>Template</strong> — ficheiro HTML com a linguagem de templates do Django ({% verbatim %}<code>{{ }}</code> e <code>{% %}</code>{% endverbatim %}) que define como os dados são apresentados.</li>
+    </ul>
+    <p>Fluxo de informação: o utilizador faz um pedido HTTP → o Django consulta <code>urls.py</code> e identifica a View → a View consulta os Models e obtém dados da base de dados → a View injeta os dados num Template → o HTML renderizado é devolvido ao utilizador.</p>
+
+    <p><em>(Foto do desenho a papel — a inserir)</em></p>
+
+    <p><em>(Vídeo-tutorial em iframe — a inserir após gravação)</em></p>
+</article>
+
+<article>
+    <header><h3>2. Modelação</h3></header>
+    <p>A modelação das entidades do portfólio foi feita primeiro em papel (Diagrama Entidade-Relação) e depois implementada em <code>models.py</code>.</p>
+
+    <p><em>(Foto do DER — a inserir)</em></p>
+
+    <p><em>(Código de models.py ou versão gerada do diagrama — a inserir)</em></p>
+</article>
+
+<article>
+    <header><h3>3. Tecnologias</h3></header>
+    <p>Tecnologias utilizadas no desenvolvimento desta aplicação, agrupadas por tipo:</p>
+
+    {% for tipo in tipos %}
+    <section>
+        <h4>{{ tipo.nome }}</h4>
+        {% if tipo.descricao %}<p>{{ tipo.descricao }}</p>{% endif %}
+        <ul>
+            {% for tecnologia in tipo.tecnologias.all %}
+                <li><strong>{{ tecnologia.nome }}</strong>{% if tecnologia.descricao %} — {{ tecnologia.descricao }}{% endif %}</li>
+            {% empty %}
+                <li>Sem tecnologias deste tipo.</li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+</article>
+
+<article>
+    <header><h3>4. Estrutura das Páginas</h3></header>
+    <p>O mapa de navegação da aplicação mostra como as várias páginas estão organizadas e como se ligam entre si.</p>
+
+    <p><em>(Foto do desenho do mapa de navegação — a inserir)</em></p>
+</article>
+
+<article>
+    <header><h3>5. Repositório GitHub</h3></header>
+    <p>O código-fonte deste projeto está disponível no GitHub:</p>
+    <ul>
+        <li><a href="https://github.com/goncalo-alegria-a22408663/ProjetoDjango" target="_blank">github.com/goncalo-alegria-a22408663/ProjetoDjango</a></li>
+    </ul>
+    <p>O Git foi usado para versionamento incremental do código, com commits frequentes a cada passo significativo (modelo a modelo, view a view, funcionalidade a funcionalidade). As principais vantagens: histórico completo das alterações, possibilidade de reverter mudanças, mensagens de commit que documentam o processo, e backup remoto no GitHub.</p>
+</article>
+
+<article>
+    <header><h3>6. Making Of</h3></header>
+    <p>Documentação completa do processo de desenvolvimento.</p>
+
+    <p><em>(Conteúdo de MakingOf.md renderizado com markdownify — a inserir)</em></p>
+</article>
+{% endblock %}
