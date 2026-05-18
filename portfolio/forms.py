@@ -9,3 +9,9 @@ class ProjetoForm(forms.ModelForm):
         widgets = {
             'data_realizacao': forms.DateInput(attrs={'type': 'date'}),
         }
+
+class TecnologiaForm(forms.ModelForm):
+    class Meta:
+        model = Tecnologia
+        fields = '__all__'
+

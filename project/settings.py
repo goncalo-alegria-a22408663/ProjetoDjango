@@ -129,4 +129,6 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.app.github.dev',
+    'https://localhost:8000',
+    'http://localhost:8000',
 ]
