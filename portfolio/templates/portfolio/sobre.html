@@ -1,4 +1,5 @@
 {% extends "portfolio/base.html" %}
+{% load markdownify %}
 
 {% block content %}
 <h2>Sobre esta Aplicação</h2>
@@ -64,8 +65,10 @@
 
 <article>
     <header><h3>6. Making Of</h3></header>
-    <p>Documentação completa do processo de desenvolvimento.</p>
+    <p>Documentação completa do processo de desenvolvimento, com decisões tomadas, erros encontrados e uso de IA:</p>
 
-    <p><em>(Conteúdo de MakingOf.md renderizado com markdownify — a inserir)</em></p>
+    <section>
+        {{ makingof_content|markdownify }}
+    </section>
 </article>
 {% endblock %}

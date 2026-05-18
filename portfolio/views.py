@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import ProjetoForm, TecnologiaForm, CompetenciaForm, FormacaoForm
 from .models import Licenciatura, Docente, Competencia, Formacao, Tecnologia, UnidadeCurricular, TFC, Projeto, MakingOf, Tipo
-
+import os
+from django.conf import settings
 
 def licenciaturas_view(request):
     licenciaturas = Licenciatura.objects.all()
@@ -163,5 +164,17 @@ def apaga_formacao_view(request, formacao_id):
     return redirect('formacoes')
 
 def sobre_view(request):
+    
     tipos = Tipo.objects.prefetch_related('tecnologias').all()
-    return render(request, 'portfolio/sobre.html', {'tipos': tipos})
+    makingof_path = os.path.join(settings.BASE_DIR, 'MakingOf.md')
+    
+    try:
+        with open(makingof_path, 'r', encoding='utf-8') as f:
+            makingof_content = f.read()
+    except FileNotFoundError:
+        makingof_content = "Ficheiro MakingOf.md não encontrado."
+
+    return render(request, 'portfolio/sobre.html', {
+        'tipos': tipos,
+        'makingof_content': makingof_content,
+    })

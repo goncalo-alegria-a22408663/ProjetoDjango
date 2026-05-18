@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'portfolio',
     'escola',
+    'markdownify.apps.MarkdownifyConfig',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,23 @@ CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8000',
     'http://localhost:8000',
 ]
+
+MARKDOWNIFY = {
+    "default": {
+        "WHITELIST_TAGS": [
+            'a', 'abbr', 'acronym',
+            'strong', 'b',
+            'blockquote', 'em', 'i',
+            'ul', 'li', 'ol',
+            'p',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'code', 'pre',
+            'hr', 'br',
+            'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        ],
+        "MARKDOWN_EXTENSIONS": [
+            "markdown.extensions.fenced_code",
+            "markdown.extensions.tables",
+        ],
+    }
+}

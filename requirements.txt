@@ -7,3 +7,4 @@ pillow==12.2.0
 requests==2.33.1
 sqlparse==0.5.5
 urllib3==2.6.3
+django-markdownify==0.9.5
