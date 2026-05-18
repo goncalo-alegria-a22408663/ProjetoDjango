@@ -354,3 +354,144 @@ Na secção 1 (explicação do MVT), incluí no texto descritivo os símbolos `{
 
 Continuei a usar o Claude como apoio. 
 
+---
+
+# Parte 4 — Ficha 9 (Autenticação e Autorização)
+
+A Ficha 9 introduz **autenticação** (verificar quem é o utilizador) e **autorização** (definir o que pode fazer). Foram implementadas duas formas de autenticação no portfólio (password e link mágico) e foi criada uma nova app `artigos` com sistema de permissões granulares.
+
+## 13. App `accounts` (autenticação por senha)
+
+### 13.1. Estrutura
+
+Criei a app `accounts` para centralizar toda a lógica de autenticação. Tem:
+- `forms.py` com `RegistoForm` (baseado em `UserCreationForm` do Django)
+- `views.py` com `login_view`, `logout_view`, `registo_view`
+- `urls.py` com as 3 rotas
+- Templates `login.html` e `registo.html`
+
+As 3 funções utilitárias do Django (`authenticate`, `login`, `logout`) e o `request.user.is_authenticated` são a base de tudo.
+
+### 13.2. Decisão — Grupo `gestor-portfolio` e proteção das views CRUD
+
+Criei o grupo `gestor-portfolio` no admin com permissões CRUD sobre todas as tabelas do portfólio (Projeto, Tecnologia, Competencia, Formacao, etc.). As permissões do grupo afetam o **admin do Django**.
+
+Para proteger as **views customizadas** do portfólio (as 12 views CRUD da Ficha 8), criei um decorador reutilizável:
+
+```python
+def is_gestor_portfolio(user):
+    return user.is_authenticated and user.groups.filter(name='gestor-portfolio').exists()
+```
+
+E apliquei `@user_passes_test(is_gestor_portfolio)` a todas as views. Este decorador combina `login_required` com a verificação de pertença ao grupo numa só linha.
+
+### 13.3. Decisão — Context processor para esconder botões no UI
+
+Para que o template `if is_gestor` funcione em qualquer página sem ter de adicionar a verificação a cada view, criei um **context processor** em `accounts/context_processors.py` que adiciona `is_gestor` ao contexto global. Registei-o em `TEMPLATES.OPTIONS.context_processors` no `settings.py`.
+
+Mais tarde, ao implementar a app `artigos`, estendi o mesmo context processor para também devolver `is_autor`, evitando duplicação.
+
+## 14. Autenticação por link mágico
+
+### 14.1. Modelo `Profile`
+
+O modelo `User` do Django não tem campo para token. Em vez de criar um custom User (que obrigaria a recriar a base de dados), criei um modelo `Profile` ligado por `OneToOneField` ao `User`:
+
+```python
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    token = models.CharField(max_length=64, blank=True, null=True)
+```
+
+Usei **Django signals** para criar automaticamente um Profile sempre que se cria um User, garantindo que o `user.profile` está sempre disponível.
+
+### 14.2. Fluxo de autenticação
+
+O fluxo segue o padrão dos slides do professor:
+
+1. Utilizador insere email num formulário em `/login/`
+2. View `login_magic_link_view` gera token único com `secrets.token_urlsafe(32)`, guarda-o no Profile, e envia email com link
+3. Utilizador clica no link → view `autentica_view` valida o token, invalida-o (uso único) e faz login automático
+
+### 14.3. Decisão — Token de uso único
+
+Após autenticação bem-sucedida, o token é definido a `None` para que o link não possa ser reutilizado:
+
+```python
+profile.token = None
+profile.save()
+login(request, user)
+```
+
+Esta é uma boa prática de segurança — links interceptados em emails antigos não podem ser usados duas vezes.
+
+### 14.4. Decisão — SMTP do Gmail
+
+Configurei o envio de emails através do SMTP do Gmail (slide 49 do professor), usando uma **app password** gerada em myaccount.google.com/apppasswords. A app password permite que o Django autentique sem expor a password pessoal da conta.
+
+### 14.5. Erro encontrado — Link mágico apontava para `localhost`
+
+Quando o link era gerado e enviado por email, o URL apontava para `http://localhost:8000/...`, que só funciona dentro do Codespace. O `request.build_absolute_uri()` estava a usar o host visível ao Django, não o público.
+
+**Correção:** adicionei em `settings.py`:
+
+```python
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+```
+
+Estas configurações dizem ao Django para confiar nos headers que o proxy do Codespace envia (`X-Forwarded-Host`), permitindo construir URLs com o domínio público correto.
+
+## 15. App `artigos`
+
+### 15.1. Estrutura
+
+A app `artigos` tem 3 modelos:
+- `Artigo` (título, texto, fotografia, link externo, data, autor)
+- `Comentario` (texto, data, FK para Artigo e User)
+- `Like` (FK para Artigo, opcional User ou IP para anónimos)
+
+E implementa todas as funcionalidades pedidas: listagem, detalhe, CRUD restrito ao autor, registo automático no grupo, comentários autenticados e likes para qualquer pessoa.
+
+### 15.2. Decisão — Likes anónimos com IP
+
+A ficha pede que "qualquer pessoa possa gostar de um artigo". Permitir likes ilimitados sem distinção seria spam; por outro lado, exigir autenticação para likes contraria o enunciado.
+
+Modelei o `Like` com `user` opcional e `ip` opcional:
+- **Autenticados:** usam `user`, com `unique_together = [('artigo', 'user')]` para evitar duplicações
+- **Anónimos:** usam `ip`, com verificação manual (`exists()`) antes de criar
+
+Esta solução cumpre o enunciado e evita spam.
+
+### 15.3. Decisão — Registo separado para autores
+
+A ficha pede que "qualquer utilizador pode criar conta e fazer login, sendo automaticamente associado ao grupo autores". Em vez de modificar o registo da app `accounts`, criei uma view separada `registo_autor_view` em `artigos/views.py` que reutiliza o mesmo `RegistoForm` e adiciona o utilizador ao grupo `autores` após o save.
+
+Isto mantém as duas rotas de registo distintas:
+- `/registo/` → utilizador sem grupo (acesso só de leitura)
+- `/artigos/registo-autor/` → utilizador com grupo `autores`
+
+### 15.4. Decisão — Isolamento entre autores
+
+A ficha pede que "cada autor só pode editar os seus próprios artigos". Implementei com verificação na view:
+
+```python
+if artigo.autor != request.user:
+    return redirect('artigos')
+```
+
+Em vez de devolver 404, redirecciono silenciosamente para a listagem. Isto evita revelar a existência de artigos a utilizadores que não os deveriam editar.
+
+No template, os botões "Editar" e "Apagar" só aparecem com `{% if is_autor and artigo.autor == request.user %}`, garantindo que a UI também reflete a restrição.
+
+### 15.5. Decisão — Reutilização do template base do portfólio
+
+Em vez de criar um `base.html` próprio para a app `artigos`, todos os templates estendem `portfolio/base.html`. Isto:
+- Mantém visual e navegação consistentes
+- Evita duplicação de CSS e estrutura HTML
+- Adiciona automaticamente o link "Artigos" no nav
+
+## 16. Uso de Inteligência Artificial (Ficha 9)
+
+Continuei a usar o Claude. Notas relevantes:
+
