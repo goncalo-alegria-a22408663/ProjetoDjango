@@ -3,9 +3,11 @@
 {% block content %}
 <h2>Tecnologias</h2>
 
+{% if is_gestor %}
 <a href="{% url 'nova_tecnologia' %}">
     <button>Inserir nova Tecnologia</button>
 </a>
+{% endif %}
 
 <section>
     {% for tecnologia in tecnologias %}
@@ -30,12 +32,14 @@
             </ul>
         </section>
 
+        {% if is_gestor %}
         <a href="{% url 'edita_tecnologia' tecnologia.id %}">
             <button>Editar</button>
         </a>
         <a href="{% url 'apaga_tecnologia' tecnologia.id %}">
             <button>Apagar</button>
         </a>
+        {% endif %}
     </article>
     {% endfor %}
 </section>

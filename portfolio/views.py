@@ -3,6 +3,12 @@ from .forms import ProjetoForm, TecnologiaForm, CompetenciaForm, FormacaoForm
 from .models import Licenciatura, Docente, Competencia, Formacao, Tecnologia, UnidadeCurricular, TFC, Projeto, MakingOf, Tipo
 import os
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+
+def is_gestor_portfolio(user):
+    return user.is_authenticated and user.groups.filter(name='gestor-portfolio').exists()
+
 
 def licenciaturas_view(request):
     licenciaturas = Licenciatura.objects.all()
@@ -23,26 +29,33 @@ def formacoes_view(request):
     formacoes = Formacao.objects.all()
     return render(request, 'portfolio/formacoes.html', {'formacoes': formacoes})
 
+
 def tecnologias_view(request):
     tecnologias = Tecnologia.objects.prefetch_related('competencias').all()
     return render(request, 'portfolio/tecnologias.html', {'tecnologias': tecnologias})
+
 
 def ucs_view(request):
     ucs = (UnidadeCurricular.objects.prefetch_related('licenciaturas', 'docentes').all())
     return render(request, 'portfolio/ucs.html', {'ucs': ucs})
 
+
 def tfcs_view(request):
     tfcs = TFC.objects.prefetch_related('licenciaturas').all()
     return render(request, 'portfolio/tfcs.html', {'tfcs': tfcs})
+
 
 def projetos_view(request):
     projetos = (Projeto.objects.select_related('unidade_curricular').prefetch_related('tecnologias').all())
     return render(request, 'portfolio/projetos.html', {'projetos': projetos})
 
+
 def makingofs_view(request):
     makingofs = (MakingOf.objects.prefetch_related('licenciaturas', 'ucs', 'docentes', 'projetos','tecnologias', 'tfcs', 'competencias', 'formacoes').all())
     return render(request, 'portfolio/makingofs.html', {'makingofs': makingofs})
 
+
+@user_passes_test(is_gestor_portfolio)
 def novo_projeto_view(request):
     form = ProjetoForm(request.POST or None, request.FILES)
     if form.is_valid():
@@ -53,6 +66,7 @@ def novo_projeto_view(request):
     return render(request, 'portfolio/novo_projeto.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def edita_projeto_view(request, projeto_id):
     projeto = Projeto.objects.get(id=projeto_id)
 
@@ -68,11 +82,14 @@ def edita_projeto_view(request, projeto_id):
     return render(request, 'portfolio/edita_projeto.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def apaga_projeto_view(request, projeto_id):
     projeto = Projeto.objects.get(id=projeto_id)
     projeto.delete()
     return redirect('projetos')
 
+
+@user_passes_test(is_gestor_portfolio)
 def nova_tecnologia_view(request):
     form = TecnologiaForm(request.POST or None, request.FILES)
     if form.is_valid():
@@ -83,6 +100,7 @@ def nova_tecnologia_view(request):
     return render(request, 'portfolio/nova_tecnologia.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def edita_tecnologia_view(request, tecnologia_id):
     tecnologia = Tecnologia.objects.get(id=tecnologia_id)
 
@@ -98,11 +116,14 @@ def edita_tecnologia_view(request, tecnologia_id):
     return render(request, 'portfolio/edita_tecnologia.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def apaga_tecnologia_view(request, tecnologia_id):
     tecnologia = Tecnologia.objects.get(id=tecnologia_id)
     tecnologia.delete()
     return redirect('tecnologias')
 
+
+@user_passes_test(is_gestor_portfolio)
 def nova_competencia_view(request):
     form = CompetenciaForm(request.POST or None)
     if form.is_valid():
@@ -113,6 +134,7 @@ def nova_competencia_view(request):
     return render(request, 'portfolio/nova_competencia.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def edita_competencia_view(request, competencia_id):
     competencia = Competencia.objects.get(id=competencia_id)
 
@@ -128,11 +150,14 @@ def edita_competencia_view(request, competencia_id):
     return render(request, 'portfolio/edita_competencia.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def apaga_competencia_view(request, competencia_id):
     competencia = Competencia.objects.get(id=competencia_id)
     competencia.delete()
     return redirect('competencias')
 
+
+@user_passes_test(is_gestor_portfolio)
 def nova_formacao_view(request):
     form = FormacaoForm(request.POST or None, request.FILES)
     if form.is_valid():
@@ -143,6 +168,7 @@ def nova_formacao_view(request):
     return render(request, 'portfolio/nova_formacao.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def edita_formacao_view(request, formacao_id):
     formacao = Formacao.objects.get(id=formacao_id)
 
@@ -158,16 +184,17 @@ def edita_formacao_view(request, formacao_id):
     return render(request, 'portfolio/edita_formacao.html', context)
 
 
+@user_passes_test(is_gestor_portfolio)
 def apaga_formacao_view(request, formacao_id):
     formacao = Formacao.objects.get(id=formacao_id)
     formacao.delete()
     return redirect('formacoes')
 
+
 def sobre_view(request):
-    
     tipos = Tipo.objects.prefetch_related('tecnologias').all()
     makingof_path = os.path.join(settings.BASE_DIR, 'MakingOf.md')
-    
+
     try:
         with open(makingof_path, 'r', encoding='utf-8') as f:
             makingof_content = f.read()

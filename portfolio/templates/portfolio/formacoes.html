@@ -3,9 +3,11 @@
 {% block content %}
 <h2>Formações</h2>
 
+{% if is_gestor %}
 <a href="{% url 'nova_formacao' %}">
     <button>Inserir nova Formação</button>
 </a>
+{% endif %}
 
 <section>
     {% for formacao in formacoes %}
@@ -26,12 +28,14 @@
             </ul>
         </section>
 
+        {% if is_gestor %}
         <a href="{% url 'edita_formacao' formacao.id %}">
             <button>Editar</button>
         </a>
         <a href="{% url 'apaga_formacao' formacao.id %}">
             <button>Apagar</button>
         </a>
+        {% endif %}
     </article>
     {% endfor %}
 </section>

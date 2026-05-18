@@ -3,9 +3,11 @@
 {% block content %}
 <h2>Projetos</h2>
 
+{% if is_gestor %}
 <a href="{% url 'novo_projeto' %}">
     <button>Inserir novo Projeto</button>
 </a>
+{% endif %}
 
 <section>
     {% for projeto in projetos %}
@@ -30,12 +32,14 @@
             </ul>
         </section>
 
+        {% if is_gestor %}
         <a href="{% url 'edita_projeto' projeto.id %}">
             <button>Editar</button>
         </a>
         <a href="{% url 'apaga_projeto' projeto.id %}">
             <button>Apagar</button>
         </a>
+        {% endif %}
     </article>
     {% endfor %}
 </section>
