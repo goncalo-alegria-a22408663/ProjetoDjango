@@ -352,9 +352,5 @@ Na secção 1 (explicação do MVT), incluí no texto descritivo os símbolos `{
 
 ## 12. Uso de Inteligência Artificial (Ficha 8)
 
-Continuei a usar o Claude como apoio. Notas relevantes desta ficha:
+Continuei a usar o Claude como apoio. 
 
-- **CRUD modelo a modelo:** após implementar o primeiro modelo (Projeto) com o Claude a explicar cada passo, os restantes três (Tecnologia, Competencia, Formacao) foram pedidos em "modo despachar" — pedi código completo de uma vez. Ressalvas pessoais: revi cada bloco antes de aplicar, sobretudo os widgets e os imports, para garantir que ficavam alinhados com os meus modelos.
-- **Comparação com o exemplo da biblioteca:** colei o README do `bibliotecalusofona` na conversa para o Claude alinhar a nomenclatura e estilo do código com o exemplo do professor (uso de `request.POST or None`, nomes de funções `novo_X_view`, etc.).
-- **Debug:** o Claude ajudou a diagnosticar o erro de CSRF no Codespace e a explicar o porquê do port-forwarding interagir mal com o `CSRF_TRUSTED_ORIGINS`, bem como o erro de indentação na classe `Tipo` e o `NameError` quando coloquei a classe na ordem errada.
-- **Mensagens de commit:** mantive a prática de pedir mensagens de commit no fim de cada bloco funcional.
