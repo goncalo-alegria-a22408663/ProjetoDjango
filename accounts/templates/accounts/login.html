@@ -7,18 +7,34 @@
     <p><strong>{{ mensagem }}</strong></p>
 {% endif %}
 
-<form action="{% url 'login' %}" method="post">
-    {% csrf_token %}
-    <p>
-        <label>Username:</label>
-        <input type="text" name="username" placeholder="Username..." required>
-    </p>
-    <p>
-        <label>Password:</label>
-        <input type="password" name="password" placeholder="Password..." required>
-    </p>
-    <input type="submit" value="Entrar">
-</form>
+<section>
+    <h3>Com password</h3>
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <p>
+            <label>Username:</label>
+            <input type="text" name="username" placeholder="Username..." required>
+        </p>
+        <p>
+            <label>Password:</label>
+            <input type="password" name="password" placeholder="Password..." required>
+        </p>
+        <input type="submit" value="Entrar">
+    </form>
+</section>
+
+<section>
+    <h3>Com link mágico</h3>
+    <p>Insere o teu email e receberás um link para entrar sem password.</p>
+    <form action="{% url 'login_magic_link' %}" method="post">
+        {% csrf_token %}
+        <p>
+            <label>Email:</label>
+            <input type="email" name="email" placeholder="Email..." required>
+        </p>
+        <input type="submit" value="Enviar link">
+    </form>
+</section>
 
 <p>
     Não tem conta? <a href="{% url 'registo' %}">Registar</a>

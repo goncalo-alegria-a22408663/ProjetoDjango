@@ -159,3 +159,13 @@ MARKDOWNIFY = {
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/portfolio/projetos/'
 LOGOUT_REDIRECT_URL = '/portfolio/projetos/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'g.alegria.set@gmail.com'
+EMAIL_HOST_PASSWORD = 'ctyc uebu iwxr tcre'
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
