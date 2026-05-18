@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import ProjetoForm, TecnologiaForm, CompetenciaForm
+from .forms import ProjetoForm, TecnologiaForm, CompetenciaForm, FormacaoForm
 from .models import Licenciatura, Docente, Competencia, Formacao, Tecnologia, UnidadeCurricular, TFC, Projeto, MakingOf
 
 
@@ -131,3 +131,33 @@ def apaga_competencia_view(request, competencia_id):
     competencia = Competencia.objects.get(id=competencia_id)
     competencia.delete()
     return redirect('competencias')
+
+def nova_formacao_view(request):
+    form = FormacaoForm(request.POST or None, request.FILES)
+    if form.is_valid():
+        form.save()
+        return redirect('formacoes')
+
+    context = {'form': form}
+    return render(request, 'portfolio/nova_formacao.html', context)
+
+
+def edita_formacao_view(request, formacao_id):
+    formacao = Formacao.objects.get(id=formacao_id)
+
+    if request.POST:
+        form = FormacaoForm(request.POST or None, request.FILES, instance=formacao)
+        if form.is_valid():
+            form.save()
+            return redirect('formacoes')
+    else:
+        form = FormacaoForm(instance=formacao)
+
+    context = {'form': form, 'formacao': formacao}
+    return render(request, 'portfolio/edita_formacao.html', context)
+
+
+def apaga_formacao_view(request, formacao_id):
+    formacao = Formacao.objects.get(id=formacao_id)
+    formacao.delete()
+    return redirect('formacoes')

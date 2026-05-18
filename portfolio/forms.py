@@ -19,3 +19,12 @@ class CompetenciaForm(forms.ModelForm):
     class Meta:
         model = Competencia
         fields = '__all__'
+
+class FormacaoForm(forms.ModelForm):
+    class Meta:
+        model = Formacao
+        fields = '__all__'
+        widgets = {
+            'data_inicio': forms.DateInput(attrs={'type': 'date'}),
+            'data_fim': forms.DateInput(attrs={'type': 'date'}),
+        }
