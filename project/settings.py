@@ -12,6 +12,12 @@ env = environ.Env()
 
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': env('CLOUDINARY_API_KEY'),
+    'API_SECRET': env('CLOUDINARY_API_SECRET'),
+}
+
 # Environment variables
 env = environ.Env(
     DEBUG=(bool, False),
@@ -45,13 +51,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "portfolio",
     "escola",
     "accounts",
     "artigos",
-
     "markdownify.apps.MarkdownifyConfig",
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 
@@ -122,9 +128,7 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-# Media files
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
 
 
 # Markdownify
@@ -190,3 +194,16 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Media files
+MEDIA_URL = "/media/"
+
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
