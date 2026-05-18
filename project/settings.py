@@ -3,7 +3,7 @@ Django settings for project.
 """
 
 from pathlib import Path
-
+import dj_database_url
 import environ
 
 
@@ -87,7 +87,7 @@ WSGI_APPLICATION = "project.wsgi.application"
 
 # Database
 DATABASES = {
-    "default": env.db(
+    "default": dj_database_url.config(
         "DATABASE_URL",
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
     )
