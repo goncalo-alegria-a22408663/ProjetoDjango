@@ -1,0 +1,78 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<article>
+    {% if artigo.fotografia %}
+    <img src="{{ artigo.fotografia.url }}" alt="Imagem {{ artigo.titulo }}">
+    {% endif %}
+
+    <header>
+        <h2>{{ artigo.titulo }}</h2>
+        <p>Por {{ artigo.autor.username }} em {{ artigo.data_criacao|date:"d/m/Y H:i" }}</p>
+    </header>
+
+    <section>
+        <p>{{ artigo.texto|linebreaks }}</p>
+    </section>
+
+    {% if artigo.link_externo %}
+    <section>
+        <h4>Link externo</h4>
+        <ul>
+            <li><a href="{{ artigo.link_externo }}" target="_blank">{{ artigo.link_externo }}</a></li>
+        </ul>
+    </section>
+    {% endif %}
+
+    <section>
+        <h4>Interagir</h4>
+        <a href="{% url 'like_artigo' artigo.id %}">
+            <button>❤ Like ({{ artigo.likes.count }})</button>
+        </a>
+        {% if is_autor and artigo.autor == request.user %}
+            <a href="{% url 'edita_artigo' artigo.id %}">
+                <button>Editar</button>
+            </a>
+            <a href="{% url 'apaga_artigo' artigo.id %}">
+                <button>Apagar</button>
+            </a>
+        {% endif %}
+    </section>
+</article>
+
+<article>
+    <header>
+        <h3>Comentários ({{ artigo.comentarios.count }})</h3>
+    </header>
+
+    {% if request.user.is_authenticated %}
+    <section>
+        <h4>Deixar comentário</h4>
+        <form method="post">
+            {% csrf_token %}
+            {{ form_comentario.as_p }}
+            <input type="submit" value="Comentar">
+        </form>
+    </section>
+    {% else %}
+    <p><a href="{% url 'login' %}">Faz login</a> para comentares.</p>
+    {% endif %}
+
+    <section>
+        <h4>Conversa</h4>
+        <ul>
+            {% for comentario in artigo.comentarios.all %}
+                <li>
+                    <strong>{{ comentario.autor.username }}</strong>
+                    em {{ comentario.data_criacao|date:"d/m/Y H:i" }}:
+                    {{ comentario.texto }}
+                </li>
+            {% empty %}
+                <li>Ainda não há comentários.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</article>
+
+<p><a href="{% url 'artigos' %}">← Voltar à lista de artigos</a></p>
+{% endblock %}

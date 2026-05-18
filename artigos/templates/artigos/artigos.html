@@ -1,0 +1,62 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Artigos</h2>
+
+{% if is_autor %}
+<a href="{% url 'novo_artigo' %}">
+    <button>Escrever novo Artigo</button>
+</a>
+{% endif %}
+
+{% if not request.user.is_authenticated %}
+<p>
+    <a href="{% url 'registo_autor' %}">Regista-te como autor</a> para publicar artigos.
+</p>
+{% endif %}
+
+<section>
+    {% for artigo in artigos %}
+    <article>
+        {% if artigo.fotografia %}
+        <img src="{{ artigo.fotografia.url }}" alt="Imagem {{ artigo.titulo }}">
+        {% endif %}
+
+        <header>
+            <h3><a href="{% url 'artigo' artigo.id %}">{{ artigo.titulo }}</a></h3>
+            <p>Por {{ artigo.autor.username }} em {{ artigo.data_criacao|date:"d/m/Y H:i" }}</p>
+        </header>
+
+        <section>
+            <h4>Resumo</h4>
+            <ul>
+                <li>{{ artigo.texto|truncatewords:30 }}</li>
+            </ul>
+        </section>
+
+        <section>
+            <h4>Estatísticas</h4>
+            <ul>
+                <li>{{ artigo.likes.count }} likes</li>
+                <li>{{ artigo.comentarios.count }} comentários</li>
+            </ul>
+        </section>
+
+        <a href="{% url 'artigo' artigo.id %}">
+            <button>Ler mais</button>
+        </a>
+
+        {% if is_autor and artigo.autor == request.user %}
+        <a href="{% url 'edita_artigo' artigo.id %}">
+            <button>Editar</button>
+        </a>
+        <a href="{% url 'apaga_artigo' artigo.id %}">
+            <button>Apagar</button>
+        </a>
+        {% endif %}
+    </article>
+    {% empty %}
+    <p>Ainda não há artigos publicados.</p>
+    {% endfor %}
+</section>
+{% endblock %}

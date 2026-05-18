@@ -1,0 +1,15 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Registo de Autor</h2>
+
+<p>Cria conta e podes começar a publicar artigos imediatamente.</p>
+
+<form action="{% url 'registo_autor' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Criar conta de autor">
+</form>
+
+<p>Já tens conta? <a href="{% url 'login' %}">Entrar</a></p>
+{% endblock %}
