@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import ProjetoForm
 from .models import Licenciatura, Docente, Competencia, Formacao, Tecnologia, UnidadeCurricular, TFC, Projeto, MakingOf
 
 
@@ -40,3 +41,33 @@ def projetos_view(request):
 def makingofs_view(request):
     makingofs = (MakingOf.objects.prefetch_related('licenciaturas', 'ucs', 'docentes', 'projetos','tecnologias', 'tfcs', 'competencias', 'formacoes').all())
     return render(request, 'portfolio/makingofs.html', {'makingofs': makingofs})
+
+def novo_projeto_view(request):
+    form = ProjetoForm(request.POST or None, request.FILES)
+    if form.is_valid():
+        form.save()
+        return redirect('projetos')
+
+    context = {'form': form}
+    return render(request, 'portfolio/novo_projeto.html', context)
+
+
+def edita_projeto_view(request, projeto_id):
+    projeto = Projeto.objects.get(id=projeto_id)
+
+    if request.POST:
+        form = ProjetoForm(request.POST or None, request.FILES, instance=projeto)
+        if form.is_valid():
+            form.save()
+            return redirect('projetos')
+    else:
+        form = ProjetoForm(instance=projeto)
+
+    context = {'form': form, 'projeto': projeto}
+    return render(request, 'portfolio/edita_projeto.html', context)
+
+
+def apaga_projeto_view(request, projeto_id):
+    projeto = Projeto.objects.get(id=projeto_id)
+    projeto.delete()
+    return redirect('projetos')

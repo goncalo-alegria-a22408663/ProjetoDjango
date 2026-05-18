@@ -132,3 +132,139 @@ article > img {
     object-fit: contain;
     margin-bottom: 12px;
 }
+
+.errorlist {
+    display: none;
+}
+
+/* ===== BOTÕES ===== */
+
+button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* Links que envolvem botões — remover sublinhado */
+a:has(> button) {
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* Botão "Inserir novo" no topo da listagem — destaque azul */
+main > a:first-of-type > button {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+    margin-bottom: 20px;
+}
+
+main > a:first-of-type > button:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* Botões dentro dos cards (editar/apagar) */
+article > a > button {
+    margin-top: 12px;
+    margin-right: 8px;
+    font-size: 13px;
+    padding: 6px 14px;
+}
+
+/* ===== FORMULÁRIOS ===== */
+
+form input[type="text"],
+form input[type="url"],
+form input[type="email"],
+form input[type="number"],
+form input[type="date"],
+form input[type="file"],
+form textarea,
+form select {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #111827;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 12px;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+form label {
+    display: inline-block;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #374151;
+}
+
+form p {
+    margin-bottom: 16px;
+}
+
+/* Botão submit do formulário */
+form input[type="submit"] {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+form input[type="submit"]:hover {
+    background: #1d4ed8;
+}
+
+/* Tabela do formulário "novo" (estilo professor) */
+form table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+form table th,
+form table td {
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+form table th {
+    font-weight: 500;
+    color: #374151;
+    width: 30%;
+}
