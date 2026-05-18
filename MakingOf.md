@@ -258,3 +258,103 @@ Continuei a usar o Claude como apoio, no mesmo espírito da Ficha 6:
 - **Modelação conceptual:** Discuti com o Claude qual a diferença entre `select_related` e `prefetch_related`, e quando aplicar cada um. Validei o meu raciocínio para cada view do portfólio antes de implementar.
 - **Debug:** O Claude ajudou a diagnosticar erros como `NameError: include is not defined`, `ModuleNotFoundError: escola.urls`, e gralhas em templates (ex: `{% for x in y}` sem `%`).
 - **Mensagens de commit:** Pedi ao Claude para gerar mensagens de commit descritivas a cada passo, mantendo o histórico legível.
+
+---
+
+# Parte 3 — Ficha 8 (Forms / CRUD / Página "Sobre")
+
+A Ficha 8 introduz **formulários** em Django, permitindo operações **CRUD** (Create, Read, Update, Delete) através do browser sem passar pelo admin. Também inclui a criação de uma página "Sobre esta Aplicação" que documenta o projeto.
+
+## 10. Formulários CRUD
+
+### 10.1. Decisão — Modelos com CRUD implementado
+
+A ficha pediu CRUD em quatro modelos: `Projeto`, `Tecnologia`, `Competencia` e `Formacao`. Implementei os quatro seguindo o mesmo padrão.
+
+### 10.2. Padrão de implementação
+
+Para cada modelo, o ciclo de implementação foi:
+
+1. **ModelForm** em `portfolio/forms.py` — classe com `Meta` que aponta para o modelo e usa `fields = '__all__'` para incluir todos os campos.
+2. **Três views** em `portfolio/views.py`: `novo_X_view`, `edita_X_view` e `apaga_X_view`.
+3. **Três rotas** em `portfolio/urls.py`: `X/novo/`, `X/<int:X_id>/edita` e `X/<int:X_id>/apaga`.
+4. **Dois templates** por modelo: `novo_X.html` e `edita_X.html`. Não foi criado template de confirmação para o `apaga` — segue o estilo do exemplo da biblioteca apresentado em aula.
+5. **Botões** na página de listagem: um botão "Inserir novo X" no topo, e botões "Editar" / "Apagar" em cada card.
+
+### 10.3. Decisão — Estilo das views (alinhamento com o exemplo do professor)
+
+Adotei a nomenclatura do exemplo da biblioteca apresentado em aula (`novo_X_view`, `edita_X_view`, `apaga_X_view`) em vez do estilo mais comum em Django (`X_create`, `X_update`, `X_delete`). Razões: consistência com o material da disciplina e facilidade de avaliação pelo docente.
+
+Para o controlo de fluxo nas views, usei o padrão `form = X(request.POST or None, request.FILES)` seguido de `if form.is_valid():` — mais conciso que o `if request.method == 'POST': ... else: ...` tradicional, e é o que o exemplo da biblioteca usa.
+
+### 10.4. Decisão — Apagar sem confirmação
+
+Considerei adicionar uma página de confirmação antes de apagar registos (boa prática para evitar perdas acidentais), mas optei por seguir o padrão da ficha: clicar em "Apagar" remove o registo imediatamente. Em produção esta decisão seria revista; aqui mantém a fidelidade ao enunciado.
+
+### 10.5. Decisão — Widgets para datas
+
+Em `ProjetoForm` e `FormacaoForm`, usei `forms.DateInput(attrs={'type': 'date'})` para forçar o input HTML5 nativo de data em vez do input de texto por defeito do Django. Melhora a UX e evita problemas de formato.
+
+### 10.6. Erro encontrado — CSRF no Codespace
+
+Ao submeter os primeiros formulários, o Django devolveu `403 Forbidden — CSRF verification failed`. A causa foi o port-forwarding do GitHub Codespaces: o browser acede via `https://*.app.github.dev` mas o Django recebe o pedido com `Origin: https://localhost:8000`. Esta origem não estava na lista de origens confiáveis.
+
+**Correção:** adicionei em `settings.py`:
+
+```python
+ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.app.github.dev',
+    'https://localhost:8000',
+    'http://localhost:8000',
+]
+```
+
+### 10.7. Erro encontrado — Template em falta
+
+Ao testar o CRUD de Competências, descobri que o template `competencias.html` não tinha sido criado na Ficha 7 (apesar de a view e rota existirem). Era um bug silencioso porque o link no nav também estava em falta, e por isso nunca tinha visitado a página. Criei o template e adicionei o link no nav.
+
+### 10.8. Estilização — botões e formulários
+
+Adicionei regras CSS específicas para `<button>`, `<input>`, `<textarea>`, `<select>` e `<form table>`. Mantive o vocabulário visual da app (pills arredondadas, azul `#2563eb` como cor de destaque), criando um botão primário azul para ações principais ("Inserir novo X", "Submit") e botões secundários neutros para ações secundárias ("Editar", "Cancelar").
+
+## 11. Página "Sobre esta Aplicação"
+
+### 11.1. Estrutura
+
+A página agrega 6 secções: arquitetura MVT, modelação, tecnologias, estrutura de páginas, repositório GitHub e Making Of. Foi implementada como uma única view (`sobre_view`) com template estático para as secções narrativas, e conteúdo dinâmico nas secções 3 e 6.
+
+### 11.2. Decisão — Classe `Tipo` (nova entidade)
+
+A ficha pediu para "agrupar as tecnologias em tipos: frontend, backend, base de dados, storage, outros" e explicitamente para "criar uma classe para tipo e incluir nas tecnologias". Implementei como `ForeignKey` em `Tecnologia` (1:N — uma tecnologia pertence a um tipo, um tipo agrupa várias tecnologias).
+
+Usei `on_delete=models.SET_NULL` com `null=True, blank=True` para que apagar um tipo não apague as tecnologias associadas (apenas as deixa sem tipo). Esta opção é mais segura que `CASCADE` ou `PROTECT` para este caso.
+
+Considerei usar `choices` (como em `Tecnologia.categoria` ou `Docente.habilitacao`), mas a ficha pediu explicitamente uma **classe** — o que permite no futuro adicionar atributos ao Tipo (descrição, ordenação, etc.) sem alterar a `Tecnologia`.
+
+### 11.3. Decisão — Markdownify para o Making Of
+
+Para a secção 6, usei o módulo `django-markdownify` para renderizar o ficheiro `MakingOf.md` diretamente como HTML formatado. A alternativa seria copiar o conteúdo para o template ou listar registos do modelo `MakingOf` da base de dados.
+
+**Vantagens da abordagem escolhida:**
+- O `MakingOf.md` continua a ser o único ficheiro fonte da documentação (não há duplicação)
+- Renderização automática a cada alteração — basta editar o `.md` e a página atualiza
+- Mantém formatação Markdown rica (cabeçalhos, listas, código, tabelas)
+
+**Configuração:** adicionei `markdownify.apps.MarkdownifyConfig` aos `INSTALLED_APPS` e configurei `MARKDOWNIFY['default']['WHITELIST_TAGS']` com os elementos HTML necessários para renderizar o documento completo, incluindo `code`, `pre`, `hr`, `br`, e elementos de tabela. Adicionei as extensões `fenced_code` e `tables` para suporte de blocos de código e tabelas Markdown.
+
+### 11.4. Erro encontrado — `TemplateSyntaxError` por sintaxe Django no template
+
+Na secção 1 (explicação do MVT), incluí no texto descritivo os símbolos `{{ }}` e `{% %}` para explicar a linguagem de templates. O Django interpretou esses símbolos como sintaxe de templates real e devolveu `Empty variable tag`.
+
+**Correção:** envolver esses símbolos em `{% verbatim %}{% endverbatim %}` para o Django os tratar como texto literal.
+
+## 12. Uso de Inteligência Artificial (Ficha 8)
+
+Continuei a usar o Claude como apoio. Notas relevantes desta ficha:
+
+- **CRUD modelo a modelo:** após implementar o primeiro modelo (Projeto) com o Claude a explicar cada passo, os restantes três (Tecnologia, Competencia, Formacao) foram pedidos em "modo despachar" — pedi código completo de uma vez. Ressalvas pessoais: revi cada bloco antes de aplicar, sobretudo os widgets e os imports, para garantir que ficavam alinhados com os meus modelos.
+- **Comparação com o exemplo da biblioteca:** colei o README do `bibliotecalusofona` na conversa para o Claude alinhar a nomenclatura e estilo do código com o exemplo do professor (uso de `request.POST or None`, nomes de funções `novo_X_view`, etc.).
+- **Debug:** o Claude ajudou a diagnosticar o erro de CSRF no Codespace e a explicar o porquê do port-forwarding interagir mal com o `CSRF_TRUSTED_ORIGINS`, bem como o erro de indentação na classe `Tipo` e o `NameError` quando coloquei a classe na ordem errada.
+- **Mensagens de commit:** mantive a prática de pedir mensagens de commit no fim de cada bloco funcional.
