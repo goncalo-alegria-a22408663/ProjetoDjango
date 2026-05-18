@@ -1,0 +1,36 @@
+{% extends "portfolio/base.html" %}
+
+{% block content %}
+<h2>Competências</h2>
+
+<a href="{% url 'nova_competencia' %}">
+    <button>Inserir nova Competência</button>
+</a>
+
+<section>
+    {% for competencia in competencias %}
+    <article>
+        <header>
+            <h3>{{ competencia.nome }}</h3>
+            <p>{{ competencia.get_tipo_display }} — {{ competencia.get_nivel_display }}</p>
+        </header>
+
+        {% if competencia.descricao %}
+        <section>
+            <h4>Descrição</h4>
+            <ul>
+                <li>{{ competencia.descricao }}</li>
+            </ul>
+        </section>
+        {% endif %}
+
+        <a href="{% url 'edita_competencia' competencia.id %}">
+            <button>Editar</button>
+        </a>
+        <a href="{% url 'apaga_competencia' competencia.id %}">
+            <button>Apagar</button>
+        </a>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

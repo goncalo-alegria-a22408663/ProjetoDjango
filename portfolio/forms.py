@@ -15,3 +15,7 @@ class TecnologiaForm(forms.ModelForm):
         model = Tecnologia
         fields = '__all__'
 
+class CompetenciaForm(forms.ModelForm):
+    class Meta:
+        model = Competencia
+        fields = '__all__'
